@@ -1,0 +1,155 @@
+---
+title: "AndrewBowen_Data606_LAb1"
+author: "Andrew Bowen"
+date: "2022-08-26"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, echo=FALSE}
+library(openintro)
+library(ggplot2)
+library(dplyr) # used for piping operator later
+```
+
+```{r}
+data('arbuthnot', package='openintro')
+
+head(arbuthnot, 10)
+```
+**Exercise 1**
+Just want to see the count of girls baptized
+```{r}
+arbuthnot$girls
+```
+
+## Plotting our DF
+```{r}
+ggplot(data=arbuthnot, aes(x=year, y=boys)) + geom_point()
+```
+Same plot as above but in line format
+
+
+**Exercise 2**
+Plotting a line graph the # of girls baptized by year below. There is a general upward trend in baptisms. On a smaller timeframe, there was a dip in girl baptisms between 1640 and 1660.
+```{r}
+ggplot(data=arbuthnot, aes(x=year, y=girls)) + geom_line()
+```
+
+```{r}
+arbuthnot$boys + arbuthnot$girls
+```
+
+Adding `total` field to dataframe
+```{r}
+arbuthnot <- arbuthnot %>% mutate(total = boys + girls)
+
+head(arbuthnot, 10)
+```
+
+Plotting `total` over time
+```{r}
+ggplot(data=arbuthnot, aes(x=year, y=total)) + geom_line()
+```
+Calculationg boy-to-girl ratio
+```{r}
+arbuthnot <- arbuthnot %>% mutate(boy_to_girl_ratio = boys / girls)
+```
+
+**Exercise 3**
+Calculating the ratio of boys baptized to total.
+```{r}
+arbuthnot <- arbuthnot %>% mutate(boy_ratio = boys / total)
+```
+
+Finding years where more boys were present than girls. Adding in a boolean flag column to represent
+```{r}
+arbuthnot <- arbuthnot %>% mutate(more_boys = boys > girls)
+```
+
+Let's take a look at our DF with all our added columns!
+```{r}
+head(arbuthnot, 10)
+```
+
+---
+# More Practice
+```{r}
+data('present', package='openintro')
+```
+
+
+```{r}
+head(present, 10)
+```
+
+**Exercise 4**
+
+Let's see our data range in the year column first (using `min` & `max`)
+```{r}
+print(min(present$year))
+print(max(present$year))
+```
+
+Finding out our data frame dimensions (nrows x ncols)
+```{r}
+print(ncol(present))
+print(nrow(present))
+```
+
+Getting out dataframe columns with the built-in `colnames` function
+```{r}
+colnames(present)
+```
+
+
+**Exercise 5**
+Going to use the median count for boys and girls from each data set (`present` vs `arbuthnot`) to compare magnitudes of counts in each data set
+```{r}
+p_boys_med = median(present$boys)
+p_girls_med = median(present$girls)
+
+a_boys_med = median(arbuthnot$boys)
+a_girls_med = median(arbuthnot$girls)
+
+# Calculating ratio of present boy/girl counts
+boys_ratio = p_boys_med / a_boys_med
+girls_ratio = p_girls_med / a_girls_med
+print(boys_ratio)
+print(girls_ratio)
+
+```
+
+It looks like the median present day birth counts are ~320 times higher than the birth counts listed in our `arbuthnot` dataset. We used median counts to summarize the data set, so it won't be exactly this ratio for the whole data set, but modern birth counts are significantly higher.
+
+**Exercise 6**
+Setting up our boy-girl ratio column
+```{r}
+present <- present %>% mutate(total = boys + girls)
+present <- present %>% mutate(boys_ratio = boys / total)
+head(present, 10)
+```
+
+Let's plot the ratio of boys born over time in our `present` dataset:
+```{r}
+ggplot(data=present, aes(x=year, y=boys_ratio)) + geom_line()
+```
+
+
+While the ratio of boys born has stayed over 50%, it is experiencing a downward trend over time since 1940, the beginning of our dataset. The observation of boys being born more than girls from the `arbuthnot` dataset does hold up, but has decreased since 1940 in the US.
+
+
+**Exercise 7**
+```{r}
+# Truncating output to 10 rows for readability
+head(present %>% arrange(desc(total)), 10)
+```
+
+We see the highest number of total births in the US come in 1961 with 4268326 total births (boys & girls). It's interesting to note that 8 of the top 10 years in terms of total births came during the [baby boom](https://en.wikipedia.org/wiki/Baby_boom#United_States) years in the post-war era.
+
+Checking out the help function (`?`) built into R objects.
+```{r}
+?present
+```
+
