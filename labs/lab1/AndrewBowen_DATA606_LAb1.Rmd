@@ -19,7 +19,7 @@ data('arbuthnot', package='openintro')
 head(arbuthnot, 10)
 ```
 ## Exercise 1
-Just want to see the count of girls baptized
+Just want to see the count of girls baptized, calling the `girls` column from our dataframe.
 ```{r}
 arbuthnot$girls
 ```
@@ -32,7 +32,7 @@ Same plot as above but in line format
 
 
 ## Exercise 2
-Plotting a line graph the # of girls baptized by year below. There is a general upward trend in baptisms. On a smaller timeframe, there was a dip in girl baptisms between 1640 and 1660.
+Plotting a line graph the # of girls baptized by year below. There is a general upward trend in baptisms for girls. On a smaller timeframe, there was a relative dip in girl baptisms between 1640 and 1660.
 ```{r}
 ggplot(data=arbuthnot, aes(x=year, y=girls)) + geom_line()
 ```
@@ -41,7 +41,7 @@ ggplot(data=arbuthnot, aes(x=year, y=girls)) + geom_line()
 arbuthnot$boys + arbuthnot$girls
 ```
 
-Adding `total` field to dataframe
+Adding `total` field to dataframe as demo'd in the lab sheet.
 ```{r}
 arbuthnot <- arbuthnot %>% mutate(total = boys + girls)
 
@@ -58,9 +58,12 @@ arbuthnot <- arbuthnot %>% mutate(boy_to_girl_ratio = boys / girls)
 ```
 
 ## Exercise 3
-Calculating the ratio of boys baptized to total.
+Calculating the ratio of boys baptized to total. This graph shows some variability in the baptism rate of boys. One other thing to note is that the ratio of boys baptized over our dataset's timeframe is above 50% over the entire period.
 ```{r}
 arbuthnot <- arbuthnot %>% mutate(boy_ratio = boys / total)
+
+# Generating plot of proportion of boys born over time (relative to total)
+ggplot(data=arbuthnot, aes(x=year, y=boy_ratio)) + geom_line()
 ```
 
 Finding years where more boys were present than girls. Adding in a boolean flag column to represent
@@ -86,10 +89,13 @@ head(present, 10)
 
 ## Exercise 4 
 
-Let's see our data range in the year column first (using `min` & `max`)
+Let's see our data range in the year column first (using `min` & `max`). It looks to be the years between 1940 and 2002.
 ```{r}
 print(min(present$year))
 print(max(present$year))
+
+# Alternatively, we can use the summarize function to find these values
+summarize(present, min(year), max(year))
 ```
 
 Finding out our data frame dimensions (nrows x ncols)
