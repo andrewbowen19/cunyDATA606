@@ -190,6 +190,8 @@ Note that you can separate the conditions using commas if you want flights that 
 # Using the comma to serve as an "AND" operator on our filtering.
 sfo_feb_flights <- nycflights %>%
   filter(dest == "SFO", month == 2)
+
+sfo_feb_flights
 ```
 
 3.  Describe the distribution of the **arrival** delays of these flights using a 
@@ -197,15 +199,18 @@ sfo_feb_flights <- nycflights %>%
     statistics you use should depend on the shape of the distribution.
     
 ```{r}
+# Arrival delays into SFO
 ggplot(sfo_feb_flights, aes(x=arr_delay)) + geom_histogram()
 
 sfo_feb_flights %>%
   summarise(median_ad = median(arr_delay),
             iqr_ad = IQR(arr_delay), 
             n_flights = n())
-
+sfo_feb_flights
 ```
-    
+  
+Looking at the histogram of arrival delays into SFO, we see the peak (mode) of the distributrion slightly under 0 minutes. This makes sense for arrival delays if we take those values to be a "negative" delay (i.e., a plane landing early instead of late). 
+  
 Another useful technique is quickly calculating summary statistics for various groups in your data frame. For example, we can modify the above command using the `group_by` function to get the same summary stats for each origin airport:
 
 ```{r summary-custom-list-origin}
@@ -224,7 +229,7 @@ Here, we first grouped the data by `origin` and then calculated the summary stat
 # Using arr_delay field instead of dep_delay
 sfo_feb_flights %>%
   group_by(origin) %>%
-  summarise(median_dd = median(arr_delay), iqr_dd = IQR(arr_delay), n_flights = n())
+  summarise(median_ad = median(arr_delay), iqr_ad = IQR(arr_delay), n_flights = n())
 ```
 
 ### Departure delays by month
@@ -251,7 +256,7 @@ nycflights %>%
     Another option is to choose the month with the lowest median departure delay. 
     What are the pros and cons of these two choices?
 
-We'll want to group our flights dataframe by month and then calculate the mean and media departure delays for each month. It appears that October (month 10) has the lowest mean departure delay, but is tied with September for median departure delay (-3 minutes). The median of a distribution is less resistent to outliers, so one very long delay could change the mean departure delay much more than the median. Looking at the histograms above, those are also skewed, meaning the mean and median won't necessarily be equal. These two choices do give a good sense of how much a traveler could expect to be delayed on a given flight.
+We'll want to group our flights dataframe by month and then calculate the mean and media departure delays for each month. It appears that October (month 10) has the lowest mean departure delay, but is tied with September for median departure delay (-3 minutes). The [median of a distribution is less resistant to outlier values](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiVw8L_tIH6AhVHkokEHeI4C9cQwqsBegQIShAB&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DoaFKTrD_fZk&usg=AOvVaw2tioJwPErekV7IZ_YmTYFU), so one very long delay could change the mean departure delay much more than the median. Looking at the histograms above, those are also skewed, meaning the mean and median won't necessarily be equal. These two choices do give a good sense of how much a traveler could expect to be delayed on a given flight.
 ```{r}
 nycflights %>% 
   group_by(month) %>%
@@ -299,15 +304,17 @@ ggplot(data = nycflights, aes(x = origin, fill = dep_type)) +
   geom_bar()
 ```
 
+
 Because the 3 airports have different total numbers of flights departing, we'll want to calculate percentage (delay rate). This can be calculated 
 ```{r}
+# Could also calculate the delay rate as 1 - on-time rate, since these are mutually exclusive
 nycflights %>%
   group_by(origin) %>%
-  summarise(ot_dep_rate = sum(dep_type == "on time") / n()) %>%
-  arrange(desc(ot_dep_rate))
+  summarise(delayed_dep_rate = sum(dep_type == "delayed") / n()) %>%
+  arrange(desc(delayed_dep_rate))
 ```
 
-LaGuardia (LGA) has the hightest rate of on-time departures (72.8% of departing flights on-time), so we'll want to choose there if we want the best chance of leaving on time
+**LaGuardia (LGA)** has the highest rate of on-time departures (72.8% of departing flights on-time), so we'll want to choose there if we want the best chance of leaving on time
 * * *
 
 ## More Practice
@@ -321,7 +328,7 @@ LaGuardia (LGA) has the hightest rate of on-time departures (72.8% of departing 
 df <- nycflights %>% 
   mutate(avg_speed = distance / (air_time / 60)) # converting travel time to hours
 
-df$avg_speed
+head(df$avg_speed, 10)
 ```
 
 8.  Make a scatterplot of `avg_speed` vs. `distance`. Describe the relationship
@@ -339,10 +346,17 @@ As the distance of a flight increases, the average speed of the flight also incr
     the plot, determine (roughly) what the cutoff point is for departure
     delays where you can still expect to get to your destination on time.
 
-```{r plot-to-replicate, echo=FALSE, fig.show="asis", fig.width=7, fig.height=4}
-dl_aa_ua <- nycflights %>%
-  filter(carrier == "AA" | carrier == "DL" | carrier == "UA")
-ggplot(data = dl_aa_ua, aes(x = dep_delay, y = arr_delay, color = carrier)) +
-  geom_point()
+```{r}
+# Filtering our flights df to just the airlines we want
+desired_airlines <- nycflights %>%
+                      filter(carrier == "AA" | carrier == "DL" | carrier == "UA")
+
+ggplot(desired_airlines, aes(x=dep_delay, y=arr_delay, color=carrier)) + geom_point()
 ```
 
+It looks like at a `dep_delay` > ~60 minutes you won't be able to arrive to your destination on time. If we draw a vertical line on this plot at $`dep_delay`=60$ we can see this cutoff more clearly.
+```{r}
+sp <- ggplot(desired_airlines, aes(x=dep_delay, y=arr_delay, color=carrier)) + geom_point()  
+
+sp + geom_vline(xintercept = 60, linetype="dotted")
+```
