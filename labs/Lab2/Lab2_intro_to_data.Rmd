@@ -209,7 +209,7 @@ sfo_feb_flights %>%
 sfo_feb_flights
 ```
   
-Looking at the histogram of arrival delays into SFO, we see the peak (mode) of the distributrion slightly under 0 minutes. This makes sense for arrival delays if we take those values to be a "negative" delay (i.e., a plane landing early instead of late). 
+Looking at the histogram of arrival delays into SFO, we see the peak (mode) of the distributrion slightly under 0 minutes. This makes sense for arrival delays if we take those values to be a "negative" delay (i.e., a plane landing early instead of late). Since the distribution is skewed and there's an outlier value at `arr_delay` ~ 100min, we should use median and IQR as summary stats instead of mean/std dev.
   
 Another useful technique is quickly calculating summary statistics for various groups in your data frame. For example, we can modify the above command using the `group_by` function to get the same summary stats for each origin airport:
 
