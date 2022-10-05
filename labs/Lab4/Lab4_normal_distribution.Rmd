@@ -315,6 +315,7 @@ openintro::qqnormsim(sample=sodium, data=sonic)
 Of all the restaurant's, Taco Bell's normal probability plot is closest to normal as it follows the straightest diagonal line, matching the simulated normal distributions from `qqnormsim` most closely.
    
 8.  Note that some of the normal probability plots for sodium distributions seem to have a stepwise pattern. why do you think this might be the case?
+
 McDonald's distribution demonstrates this stepwise behavior after the 1st positive quantile. Qualitatively speaking, there's a large variety in products offered by McDonald's: burgers, french fries, salads. So items higher in sodium (french fries, for example) will cause a jump at that end of the distribution and cause the distribution of `sodium` to nor be normally distributed. Let's look at the spread of the McDonald's and Taco Bell distributions, respectively.
 
 ```{r}
@@ -325,7 +326,7 @@ mcdonalds %>%
 
 ```{r}
 taco_bell %>%
-          summarise(iqr_sodium=IQR(sodium),,
+          summarise(iqr_sodium=IQR(sodium),
                     sd_tb = sd(sodium))
 ```
 
@@ -336,12 +337,11 @@ taco_bell %>%
 # Plotting norm probability plot of Sonic's carbohydrates
 openintro::qqnormsim(sample=total_carb, data=sonic)
 ```
-Based on our normal probability plot, the distribution of `total_carb` for Sonic is right-skewed. The histogram plotted below shows this behavior as well.
+Based on our normal probability plot, the distribution of `total_carb` for Sonic is right-skewed because negative carbohydrate values are not possible. The histogram plotted below shows this behavior as well.
 ```{r}
 ggplot(sonic, aes(x=total_carb)) +
   geom_blank() + 
-  geom_histogram(aes(y = ..density..)) +
-        stat_function(fun = dnorm, args = c(mean = mean(sonic$total_carb), sd = sd(sonic$total_carb)), col = "tomato")
+  geom_histogram(binwidth=10)
 ```
 
 * * *
