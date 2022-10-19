@@ -31,6 +31,9 @@ Let's load the packages.
 library(tidyverse)
 library(openintro)
 library(infer)
+
+# my imports
+library(ggplot2)
 ```
 
 
@@ -59,6 +62,8 @@ Remember that you can answer this question by viewing the data in the data viewe
 glimpse(yrbss)
 ```
 
+We have 13 variables (fields) in our sample dataset and 13,583 rows (cases/observations). Each case (row) corresponds to a teenager within the sample and the characteristics that apply to that teenager (age, gender, etc.).
+
 ## Exploratory data analysis
 
 You will first start with analyzing the weight of the participants in kilograms: `weight`.
@@ -70,6 +75,12 @@ summary(yrbss$weight)
 ```
 
 2.  How many observations are we missing weights from?
+```{r missing-weights}
+yrbss %>%
+      filter(is.na(weight)) %>%
+      nrow()
+```
+We are missing weights from 1004 rows/observations in our sample.
 
 Next, consider the possible relationship between a high schooler's weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.
 
@@ -82,7 +93,10 @@ yrbss <- yrbss %>%
 
 
 3.  Make a side-by-side boxplot of `physical_3plus` and `weight`. Is there a relationship between these two variables? What did you expect and why?
-
+```{r boxplot}
+ggplot(yrbss, aes(x=physical_3plus, y=weight)) + geom_boxplot()
+```
+These variables do not appear to have a strong relatinoship, as the median and quartile weights appear to be in a similar range between those students who are and are not physically active at least 3 days a week. I did expect there to be a relationship between these two, as people who get more physical activity in tend to lose and keep off weight more easily.
 
 The box plots show how the medians of the two distributions compare, but we can also compare the means of the distributions using the following to first group the data by the `physical_3plus` variable, and then calculate the mean `weight` in these groups using the `mean` function while ignoring missing values by setting the `na.rm` argument to `TRUE`.
 
