@@ -1,0 +1,62 @@
+---
+title: DATA 606 Data Project Proposal
+author: Andrew Bowen
+---
+
+### Data Preparation
+
+```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+# load data
+
+```
+
+
+### Research question 
+
+**You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
+
+Have NBA players after the "3-point revolution" (2015) really improved at shooting 3-pointers?
+
+### Cases 
+
+**What are the cases, and how many are there?**
+We will need to look at the 3-point shooting percentages for every NBA player in every season for which there is data. 
+
+
+### Data collection 
+
+**Describe the method of data collection.**
+
+
+
+### Type of study 
+
+**What type of study is this (observational/experiment)?**
+
+
+
+### Data Source 
+
+**If you collected the data, state self-collected. If not, provide a citation/link.**
+
+
+
+
+### Dependent Variable
+
+**What is the response variable? Is it quantitative or qualitative?**
+
+
+
+### Independent Variable(s)
+
+
+
+
+### Relevant summary statistics 
+
+**Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
+
+```{r}
+
+```
