@@ -1,6 +1,7 @@
 ---
-title: DATA 606 Data Project Proposal
-author: Andrew Bowen
+title: "DATA 606 Data Project Proposal"
+author: "Andrew Bowen"
+output: pdf_document
 ---
 
 ### Setup
