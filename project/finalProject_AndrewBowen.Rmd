@@ -1,0 +1,100 @@
+---
+title: "DATA 606 Final Project"
+author: "Andrew Bowen"
+date: "2022-11-22"
+output: html_document
+---
+
+
+### Introduction
+
+Soccer (also called football internationally), is the most popular sport in the world. The FIFA World Cup is the [most-watched sporting event](https://www.nbcsports.com/chicago/world-cup-2022/how-does-world-cups-viewership-tickets-and-attendance-compare-nfls-super) in the world. UEFA, the European confederation for soccer, is generally considered the gold standard of federations. For instance, the [UEFA Champions League](https://www.google.com/search?client=safari&rls=en&q=uefa+champions+league&ie=UTF-8&oe=UTF-8) is considered the highest level of soccer in the world, pitting the best teams in Europe's top leagues against each other. With Europe claiming soccer superiority, does viewership reflect this?
+
+**Research Question**: Is there a significant difference in the mean viewership of soccer in Europe vs another continent (confederation)?
+
+```{r, message=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+
+### Data
+
+Our data was collected into a csv file by FiveThirtyEight. The original csv file lives in their GitHub repo [here](https://github.com/fivethirtyeight/data/tree/master/fifa). The original file contains 5 fields: 
+- `country`
+- `confederation`
+- `tv_audience_share`
+- `population_share`
+- `gdp_weighted_share`
+
+We'll read in the csv into a dataframe from the original GitHub repo:
+```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+# load data
+data_url <- "https://raw.githubusercontent.com/fivethirtyeight/data/master/fifa/fifa_countries_audience.csv"
+
+fifa <- read.csv(data_url)
+```
+
+## Exploratory Data Analysis
+Adding in a cleaner `continent` column based on a country's confederation. These loosely represent the geographic location of [FIFA confederations](https://en.wikipedia.org/wiki/List_of_football_federations)
+```{r}
+# Adding continent column for cleaner plots/readability
+confederation <- c("CONCACAF", "UEFA", "CONMEBOL", "AFC", "CAF", "OFC")
+continent <- c("North America", "Europe", "South America", "Asia", "Africa", "Oceania")
+continent_map <- data.frame(confederation, continent)
+
+fifa <- merge(fifa, continent_map)
+```
+
+
+We'll need to look at the `gdp_weighted_share` variable in our dataframe as that accounts for the population/GDP of a country. First, to compare the viewership of European countries vs that of non-European countries, we'll need to group our data into European vs non-European nations. We'll also wa
+```{r}
+fifa <- fifa %>%
+              mutate(european = ifelse(fifa$confederation == "UEFA", TRUE, FALSE))
+```
+
+
+#### Data Visualization
+Adding some plots to paint a better picture of our data. Let's start with the `gdp_weighted_share` variable
+```{r}
+# GDP weighted viewership share
+ggplot(fifa, aes(x = gdp_weighted_share)) + geom_histogram()
+```
+```{r}
+# population share
+ggplot(fifa, aes(x = population_share)) + geom_histogram()
+```
+
+```{r}
+# TV audience share
+ggplot(fifa, aes(x = tv_audience_share)) + geom_histogram()
+```
+
+
+
+### Inference
+Let's run our t-test comparing the gdp-adjusted viewership for european vs non-european countries'. We'll be conducting this test with a significance level $\alpha = 0.05$. Our null and alternative hypotheses are listed below:
+
+- $H_0$: The mean GDP-weighted viewership share of the world cup in Europe is *not higher*  than that of other confederations
+- $H_a$: The mean GDP-weighter viewership share of the world cup is *higher* than that of other confederations
+
+```{r}
+# Filtering into our two groups: Europe vs not Europe.
+europe <- fifa %>% filter(european== TRUE)
+other_countries <- fifa %>% filter(european == FALSE)
+
+# Running one-tailed t-test using R built-in
+t.test(europe$gdp_weighted_share, other_countries$gdp_weighted_share, alternative="greater")
+```
+
+Since our p-value is less than $\alpha = 0.05$, we can reject the null hypothesis and claim that average world cup viewership in Europe is higher than that of non-european countries.
+
+### Data Visualization
+
+
+
+
+### References
+
+
+
