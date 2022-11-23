@@ -15,6 +15,8 @@ Soccer (also called football internationally), is the most popular sport in the 
 ```{r, message=FALSE}
 library(ggplot2)
 library(dplyr)
+library(maps)
+library(stringr)
 ```
 
 
@@ -72,6 +74,46 @@ ggplot(fifa, aes(x = tv_audience_share)) + geom_histogram()
 
 
 
+One thing that'd be interested to see is the world map with countries colored by their `tv_audience_share` values. We'll need to grab latitude and longitudinal data for each country to create a choropleth map. We can use the `maps` library and the `map_data` function to grab a listing of countries with their coordinates. From there we can create choropleths with colormaps representing the metrics we care about (`gdo_weighted share`, `tv_audience_share`, etc).
+```{r world-map-tv-share}
+world_map <- map_data("world") %>%
+              rename("country" = "region")
+
+# USA named differently in each dataset, replacing to standardize column values (same wqith UK)
+world_map$country <- str_replace(world_map$country, "USA", "United States")
+world_map$country <- str_replace(world_map$country, "UK", "United Kingdom")
+
+# Joining our world_map geographic data to our World Cup viewership data by country
+fifa_coords <- world_map %>% 
+  left_join(fifa, by = c("country"))
+
+head(fifa_coords)
+```
+First, let's take a look at the FIFA Confederation membership of each country
+```{r, confederation-membership}
+ggplot(fifa_coords, aes(long, lat, group = group)) +
+  geom_polygon(aes( group=group, fill=confederation)) + 
+  ggtitle("FIFA Confederation memberdship by country") +
+  xlab("Longitude (deg)") + ylab("Latitude (deg)")
+```
+
+
+```{r}
+# Plotting TV Audience share by country
+ggplot(fifa_coords, aes(long, lat, group = group)) +
+  geom_polygon(aes( group=group, fill=tv_audience_share)) + 
+  ggtitle("TV Audience share (%) of world cup viewership by country") +
+  xlab("Longitude (deg)") + ylab("Latitude (deg)")
+```
+```{r, gdp-weighted-share-choropleth}
+ggplot(fifa_coords, aes(long, lat, group = group)) +
+  geom_polygon(aes( group=group, fill=gdp_weighted_share)) + 
+  ggtitle("GDP-weighted share (%) of world cup viewership by country") +
+  xlab("Longitude (deg)") + ylab("Latitude (deg)")
+
+```
+
+
 ### Inference
 Let's run our t-test comparing the gdp-adjusted viewership for european vs non-european countries'. We'll be conducting this test with a significance level $\alpha = 0.05$. Our null and alternative hypotheses are listed below:
 
@@ -87,10 +129,32 @@ other_countries <- fifa %>% filter(european == FALSE)
 t.test(europe$gdp_weighted_share, other_countries$gdp_weighted_share, alternative="greater")
 ```
 
-Since our p-value is less than $\alpha = 0.05$, we can reject the null hypothesis and claim that average world cup viewership in Europe is higher than that of non-european countries.
+Since our p-value is less than $\alpha = 0.05$, we can reject the null hypothesis and claim that GDP-adjusted average world cup viewership in Europe is higher than that of non-European countries.
 
-### Data Visualization
+Let's also run an inference test on our `tv_audience_share` variable ($\alpha = 0.05$) to see if there's a significant difference between European and non-European countries. We'll start with our hypotheses:
+- $H_0$: The mean tv audience viewership share of the world cup in Europe is *not higher*  than that of other confederations
+- $H_a$: The mean tv audience viewership share of the world cup is *higher* than that of other confederations
+```{r}
+# Running one-tailed t-test using R built-in
+t.test(europe$tv_audience_share, other_countries$tv_audience_share, alternative="greater")
+```
+Our p-value of $0.4279 > \alpha$ indicates that we cannot reject the null hypothesis in this instance. There is no statistically significant different in raw TV audience viewership share between European and non-European countries
 
+#### ANOVA Between Confederations
+Lastly, it'd be interesting to run an ANOVA analysis on `tv_audience_share` between Confederations (not just Europe vs Non-Europe) to see if there's any significant differences in World Cup viewership between confederations. 
+
+- $H_0$: There is no difference in mean tv audience World Cup viewership share between confederations
+- $H_a$: The mean tv audience viewership share of the world cup is different between confederations
+
+We will conduct our ANOVA testing at a 5% significance level ($\apha = 0.05$)
+
+```{r, anova-tv-audience}
+confederation_test <- aov(tv_audience_share ~ confederation, data = fifa)
+
+summary(confederation_test)
+```
+
+Since our p-value (0.0244) is less than $\alpha = 0.05$, we can reject the null hypothesis and assert that there *is* a statistically significant different in mean TV audience viewership between FIFA confederations. 
 
 
 
