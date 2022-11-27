@@ -3,7 +3,9 @@ title: "DATA 606 Final Project"
 author: "Andrew Bowen"
 date: "2022-11-22"
 output: html_document
+bibliography: references.bib
 ---
+### Abstract
 
 
 ### Introduction
@@ -93,6 +95,7 @@ fifa_coords <- world_map %>%
 
 head(fifa_coords)
 ```
+
 First, let's take a look at the FIFA Confederation membership of each country
 ```{r, confederation-membership}
 ggplot(fifa_coords, aes(long, lat, group = group)) +
@@ -161,8 +164,9 @@ summary(confederation_test)
 Since our p-value (0.0244) is less than $\alpha = 0.05$, we can reject the null hypothesis and assert that there *is* a statistically significant different in mean TV audience viewership between FIFA confederations. 
 
 
-
 ### References
+- [@break-fifa-538]
+
 
 
 
