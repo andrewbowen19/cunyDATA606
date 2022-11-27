@@ -422,6 +422,23 @@ non-European countries, we’ll need to group our data into European vs
 non-European nations. We’ll also wa</p>
 <pre class="r"><code>fifa &lt;- fifa %&gt;%
               mutate(european = ifelse(fifa$confederation == &quot;UEFA&quot;, TRUE, FALSE))</code></pre>
+<p>Let’s take a look at some of the summary stats for our dataset via
+the <code>summary</code> method</p>
+<pre class="r"><code>summary(fifa)</code></pre>
+<pre><code>##  confederation        country          population_share  tv_audience_share
+##  Length:191         Length:191         Min.   : 0.0000   Min.   : 0.000   
+##  Class :character   Class :character   1st Qu.: 0.0000   1st Qu.: 0.000   
+##  Mode  :character   Mode  :character   Median : 0.1000   Median : 0.100   
+##                                        Mean   : 0.5225   Mean   : 0.523   
+##                                        3rd Qu.: 0.3500   3rd Qu.: 0.300   
+##                                        Max.   :19.5000   Max.   :14.800   
+##  gdp_weighted_share  continent          european      
+##  Min.   : 0.0000    Length:191         Mode :logical  
+##  1st Qu.: 0.0000    Class :character   FALSE:145      
+##  Median : 0.0000    Mode  :character   TRUE :46       
+##  Mean   : 0.5204                                      
+##  3rd Qu.: 0.3000                                      
+##  Max.   :11.3000</code></pre>
 <div id="data-visualization" class="section level4">
 <h4>Data Visualization</h4>
 <p>Adding some plots to paint a better picture of our data. Let’s start

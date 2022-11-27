@@ -55,6 +55,10 @@ fifa <- fifa %>%
               mutate(european = ifelse(fifa$confederation == "UEFA", TRUE, FALSE))
 ```
 
+Let's take a look at some of the summary stats for our dataset via the `summary` method
+```{r}
+summary(fifa)
+```
 
 #### Data Visualization
 Adding some plots to paint a better picture of our data. Let's start with the `gdp_weighted_share` variable
