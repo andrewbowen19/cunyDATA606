@@ -394,6 +394,29 @@ pre code {
 
 <div id="abstract" class="section level3">
 <h3>Abstract</h3>
+<p>The FIFA World Cup is the largest sporting event in the world, in
+terms of television viewership. With over 5 billion viewers per
+tournament, there is significant interest in the event internationally.
+UEFA, the European football (also called soccer) confederation is often
+considered the best confederation, both in terms of quality of play and
+popularity. While the success of European teams in international
+competitions is unquestioned, I wanted to explore the notion that
+Europeans watch the game more than other continents. To examine this, I
+used 2010 World Cup <a href="https://github.com/fivethirtyeight/data/tree/master/fifa">TV
+viewership data collected by FiveThirtyEight</a>. I used a statistical
+t-test to compare the mean viewership (both GDP-weighted and raw
+viewership) between European and non-european countries. As it turns
+out,there was a statistically significant difference in the mean
+GDP-weighted viewership share for that world cup. In addition, I ran an
+ANOVA to test whether or not there was a difference in the mean
+viewership between FIFA confederations. This test also produced results
+that would allow us to reject the null hypothesis that there is no
+difference in World Cup viewership between confederations. All told,
+there are various inputs that impact the TV viewership of a country
+(population, GDP, popularity of a sport). For the time being, UEFA is
+still the largest viewership bloc, but the increased popularity of the
+game globally may challenge the hegemony of the European
+confederation.</p>
 </div>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
@@ -416,8 +439,9 @@ library(stringr)</code></pre>
 </div>
 <div id="data" class="section level3">
 <h3>Data</h3>
-<p>Our data was collected into a csv file by FiveThirtyEight. The
-original csv file lives in their GitHub repo <a href="https://github.com/fivethirtyeight/data/tree/master/fifa">here</a>.
+<p>Our TV viewership data for the 2010 World Cupdata was collected into
+a csv file by FiveThirtyEight. The original csv file lives in their
+GitHub repo <a href="https://github.com/fivethirtyeight/data/tree/master/fifa">here</a>.
 The original file contains 5 fields: - <code>country</code> -
 <code>confederation</code> - <code>tv_audience_share</code> -
 <code>population_share</code> - <code>gdp_weighted_share</code></p>
