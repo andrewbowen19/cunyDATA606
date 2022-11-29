@@ -3,12 +3,14 @@ title: "DATA 606 Final Presentation Slides"
 author: "Andrew Bowen"
 date: "2022-11-29"
 output: ioslides_presentation
+bibliography: references.bib
 ---
 
 
 ## Research Question
 **Is there a significant difference in the mean viewership of soccer in Europe vs another continent (confederation)?**
-
+![](./world-cup-trophy.png)
+![](./tv-clipart.png)
 
 ```{r, echo=FALSE, message=FALSE}
 library(ggplot2)
@@ -29,12 +31,15 @@ library(stringr)
   - `population_share`
   - `gdp_weighted_share`
 
+
+## Reading in Data
 Read in the csv into a dataframe
 ```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
-# load data
+# load data into R dataframe
 data_url <- "https://raw.githubusercontent.com/fivethirtyeight/data/master/fifa/fifa_countries_audience.csv"
 
 fifa <- read.csv(data_url)
+head(fifa)
 ```
 
 ```{r, echo=FALSE}
@@ -61,7 +66,6 @@ fifa_coords <- world_map %>%
   left_join(fifa, by = c("country"))
 
 head(fifa_coords)
-
 ```
 
 ## Exploratory Data Analysis
@@ -72,15 +76,15 @@ ggplot(fifa, aes(x = gdp_weighted_share, fill = confederation)) +
   geom_histogram(binwidth=1) + 
   facet_grid(confederation ~ .)
 ```
-## TV Audience Share by Confederation
 
+## TV Audience Share by Confederation
 ```{r, tv-share-by-confederation, message = FALSE}
 ggplot(fifa, aes(x = tv_audience_share, fill = confederation)) + 
   geom_histogram(binwidth=1) + 
   facet_grid(confederation ~ .)
 ```
-## Population Share by Confederation
 
+## Population Share by Confederation
 ```{r, pop-share-by-confederation, message = FALSE}
 ggplot(fifa, aes(x = population_share, fill = confederation)) + 
   geom_histogram(binwidth=1) + 
@@ -88,7 +92,6 @@ ggplot(fifa, aes(x = population_share, fill = confederation)) +
 ```
 
 ## What is a Confederation?
-
 Easier to think of confederations as continents
 ```{r, confederation-membership}
 ggplot(fifa_coords, aes(long, lat, group = group)) +
@@ -97,9 +100,7 @@ ggplot(fifa_coords, aes(long, lat, group = group)) +
   xlab("Longitude (deg)") + ylab("Latitude (deg)")
 ```
 
-
 ## TV Audience Share by Country (visualized)
-
 ```{r}
 # Plotting TV Audience share by country
 ggplot(fifa_coords, aes(long, lat, group = group)) +
@@ -108,8 +109,7 @@ ggplot(fifa_coords, aes(long, lat, group = group)) +
   xlab("Longitude (deg)") + ylab("Latitude (deg)")
 ```
 
-## GDP Weighted SHare by Country (visualized)
-
+## GDP Weighted Share by Country (visualized)
 ```{r, gdp-weighted-share-choropleth}
 ggplot(fifa_coords, aes(long, lat, group = group)) +
   geom_polygon(aes( group=group, fill=gdp_weighted_share)) + 
@@ -117,42 +117,75 @@ ggplot(fifa_coords, aes(long, lat, group = group)) +
   xlab("Longitude (deg)") + ylab("Latitude (deg)")
 ```
 
-
 ## Inference
-T-test comparing the gdp-adjusted viewership for European vs non-European countries'. We'll be conducting this test with a significance level $\alpha = 0.05$. Our null and alternative hypotheses are listed below:
+T-test comparing the gdp-adjusted viewership for European vs non-European countries ($\alpha = 0.05$)    
 
 - $H_0$: The mean GDP-weighted viewership share of the world cup in Europe is *not higher*  than that of other confederations
-- $H_a$: The mean GDP-weighter viewership share of the world cup is *higher* than that of other confederations
+
+- $H_a$: The mean European GDP-weighted viewership share of the world cup is *higher* than that of other confederations
 
 
+## T-Test Results (GDP)
 ```{r gdp-weighted-t-test}
 europe <- fifa %>% filter(european== TRUE)
 other_countries <- fifa %>% filter(european == FALSE)
-
 # Running one-tailed t-test using R built-in
-t.test(europe$gdp_weighted_share, other_countries$gdp_weighted_share, alternative="greater")
+t.test(europe$gdp_weighted_share, other_countries$gdp_weighted_share,
+       alternative="greater")
 ```
-
-
 Since our p-value is less than $\alpha = 0.05$, we can reject the null hypothesis and claim that GDP-adjusted average world cup viewership in Europe is higher than that of non-European countries.
 
 ## Inference (TV Audience)
+T-test on our `tv_audience_share` variable between European vs non-European countries ($\alpha = 0.05$)    
 
-Let's also run an t-test on our `tv_audience_share` variable ($\alpha = 0.05$) between European and non-European countries:
 - $H_0$: The mean tv audience viewership share of the world cup in Europe is *not higher*  than that of other confederations
+
 - $H_a$: The mean tv audience viewership share of the world cup is *higher* than that of other confederations
+
+## Results (TV Audience)
 ```{r tv-audience-t-test}
 # Running one-tailed t-test using R built-in method
-t.test(europe$tv_audience_share, other_countries$tv_audience_share, alternative="greater")
+t.test(europe$tv_audience_share, other_countries$tv_audience_share,
+       alternative="greater")
 ```
-
 
 ## Inference (ANOVA)
 Checking if there is a difference in TV Audience share between confederations
-```{r, anova-tv-audience}
-confederation_test <- aov(tv_audience_share ~ confederation, data = fifa)
 
+- $H_0$: there is no significant difference between tv audience share between confederations
+
+- $H_a$: there is significant difference between tv audience share between confederations
+
+## ANOVA Results (TV Audience)
+```{r, anova-tv-audience}
+confederation_test <- aov(tv_audience_share ~ confederation,
+                          data = fifa)
 summary(confederation_test)
 ```
+- Since our p-value (0.0244) is less than $\alpha = 0.05$, we can reject the null hypothesis and assert that there **is** a statistically significant different in mean TV audience viewership between FIFA confederations.
 
-Since our p-value (0.0244) is less than $\alpha = 0.05$, we can reject the null hypothesis and assert that there *is* a statistically significant different in mean TV audience viewership between FIFA confederations. 
+## Inference (ANOVA GDP)
+Checking if there is a difference in TV Audience share between confederations for GDP -weighted share
+
+- $H_0$: there is no significant difference between gdp-weighted share between confederations
+
+- $H_a$: there is significant difference between gdp-weighted share between confederations
+
+## ANOVA Results (GDP)
+```{r, anova-gdp-share}
+confederation_test <- aov(gdp_weighted_share ~ confederation,
+                          data = fifa)
+summary(confederation_test)
+```
+## Conclusion
+- There may be a case that UEFA has the strongest following of soccer (or I guess we'll have to say 'football')
+- Multiple input factors could influence these results
+
+
+## Further Work
+- More recent WC viewership data
+- Use league viewership data (need to adjust for home country)
+- Historical analysis
+
+## References
+- [@break-fifa-538]

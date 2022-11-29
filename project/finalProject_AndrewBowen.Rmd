@@ -8,7 +8,7 @@ bibliography: references.bib
 ### Abstract
 The FIFA World Cup is the largest sporting event in the world, in terms of television viewership. With over 5 billion viewers per tournament, there is significant interest in the event internationally. UEFA, the European football (also called soccer) confederation is often considered the best confederation, both in terms of quality of play and popularity. While the success of European teams in international competitions is unquestioned, I wanted to explore the notion that Europeans watch the game more than other continents. To examine this, I used 2010 World Cup [TV viewership data collected by FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/fifa). I used a statistical t-test to compare the mean viewership (both GDP-weighted and raw viewership) between European and non-european countries. As it turns out,there was a statistically significant difference in the  mean GDP-weighted viewership share for that world cup. In addition, I ran an ANOVA to test whether or not there was a difference in the mean viewership between FIFA confederations. This test also produced results that would allow us to reject the null hypothesis that there is no difference in World Cup viewership between confederations. All told, there are various inputs that impact the TV viewership of a country (population, GDP, popularity of a sport). For the time being, UEFA is still the largest viewership bloc, but the increased popularity of the game globally may challenge the hegemony of the European confederation.
 
-### Introduction
+## Introduction
 
 Soccer (also called football internationally), is the most popular sport in the world. The FIFA World Cup is the [most-watched sporting event](https://www.nbcsports.com/chicago/world-cup-2022/how-does-world-cups-viewership-tickets-and-attendance-compare-nfls-super) in the world. UEFA, the European confederation for soccer, is generally considered the gold standard of federations. For instance, the [UEFA Champions League](https://www.google.com/search?client=safari&rls=en&q=uefa+champions+league&ie=UTF-8&oe=UTF-8) is considered the highest level of soccer in the world, pitting the best teams in Europe's top leagues against each other. With Europe claiming soccer superiority, does viewership reflect this?
 
@@ -22,9 +22,9 @@ library(stringr)
 ```
 
 
-### Data
+## Data
 
-Our TV viewership data for the 2010 World Cup swas collected into a csv file by FiveThirtyEight. The original csv file lives in their GitHub repo [here](https://github.com/fivethirtyeight/data/tree/master/fifa). The original file contains 5 fields: 
+Our TV viewership data for the 2010 World Cup was collected into a csv file by FiveThirtyEight. The original csv file lives in their GitHub repo [here](https://github.com/fivethirtyeight/data/tree/master/fifa). The original file contains 5 fields: 
 - `country`
 - `confederation`
 - `tv_audience_share`
@@ -51,7 +51,7 @@ fifa <- merge(fifa, continent_map)
 ```
 
 
-We'll need to look at the `gdp_weighted_share` variable in our dataframe as that accounts for the population/GDP of a country. First, to compare the viewership of European countries vs that of non-European countries, we'll need to group our data into European vs non-European nations. We'll also wa
+We'll need to look at the `gdp_weighted_share` variable in our dataframe as that accounts for the population/GDP of a country. First, to compare the viewership of European countries vs that of non-European countries, we'll need to group our data into European vs non-European nations.
 ```{r}
 fifa <- fifa %>%
               mutate(european = ifelse(fifa$confederation == "UEFA", TRUE, FALSE))
@@ -67,15 +67,29 @@ Adding some plots to paint a better picture of our data. Let's start with the `g
 ```{r}
 # GDP weighted viewership share
 ggplot(fifa, aes(x = gdp_weighted_share)) + geom_histogram()
+
+ggplot(fifa, aes(x = gdp_weighted_share, fill = confederation)) + 
+  geom_histogram() + 
+  facet_grid(confederation ~ .)
 ```
 ```{r}
 # population share
 ggplot(fifa, aes(x = population_share)) + geom_histogram()
+
+# Also plotting by confederation
+ggplot(fifa, aes(x = population_share, fill = confederation)) + 
+  geom_histogram() + 
+  facet_grid(confederation ~ .)
 ```
 
 ```{r}
 # TV audience share
 ggplot(fifa, aes(x = tv_audience_share)) + geom_histogram()
+
+# Also plot by confederation
+ggplot(fifa, aes(x = tv_audience_share, fill = confederation)) + 
+  geom_histogram() + 
+  facet_grid(confederation ~ .)
 ```
 
 
