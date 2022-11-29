@@ -1,0 +1,158 @@
+---
+title: "DATA 606 Final Presentation Slides"
+author: "Andrew Bowen"
+date: "2022-11-29"
+output: ioslides_presentation
+---
+
+
+## Research Question
+**Is there a significant difference in the mean viewership of soccer in Europe vs another continent (confederation)?**
+
+
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(maps)
+library(stringr)
+```
+
+
+## Data
+
+- Viewership data for the 2010 World Cup
+- Collected into a [csv file by FiveThirtyEight](https://github.com/fivethirtyeight/data/tree/master/fifa)
+- 5 fields: 
+  - `country`
+  - `confederation`
+  - `tv_audience_share`
+  - `population_share`
+  - `gdp_weighted_share`
+
+Read in the csv into a dataframe
+```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+# load data
+data_url <- "https://raw.githubusercontent.com/fivethirtyeight/data/master/fifa/fifa_countries_audience.csv"
+
+fifa <- read.csv(data_url)
+```
+
+```{r, echo=FALSE}
+# Adding continent column for cleaner plots/readability
+confederation <- c("CONCACAF", "UEFA", "CONMEBOL", "AFC", "CAF", "OFC")
+continent <- c("North America", "Europe", "South America", "Asia", "Africa", "Oceania")
+continent_map <- data.frame(confederation, continent)
+
+fifa <- merge(fifa, continent_map)
+
+fifa <- fifa %>%
+              mutate(european = ifelse(fifa$confederation == "UEFA", TRUE, FALSE))
+
+# Cleaning up country codes
+world_map <- map_data("world") %>%
+              rename("country" = "region")
+
+# USA named differently in each dataset, replacing to standardize column values (same wqith UK)
+world_map$country <- str_replace(world_map$country, "USA", "United States")
+world_map$country <- str_replace(world_map$country, "UK", "United Kingdom")
+
+# Joining our world_map geographic data to our World Cup viewership data by country
+fifa_coords <- world_map %>% 
+  left_join(fifa, by = c("country"))
+
+head(fifa_coords)
+
+```
+
+## Exploratory Data Analysis
+
+```{r, gdp-share-by-confederation, message = FALSE}
+# Plotting GDP Weighted share by confederation
+ggplot(fifa, aes(x = gdp_weighted_share, fill = confederation)) + 
+  geom_histogram(binwidth=1) + 
+  facet_grid(confederation ~ .)
+```
+## TV Audience Share by Confederation
+
+```{r, tv-share-by-confederation, message = FALSE}
+ggplot(fifa, aes(x = tv_audience_share, fill = confederation)) + 
+  geom_histogram(binwidth=1) + 
+  facet_grid(confederation ~ .)
+```
+## Population Share by Confederation
+
+```{r, pop-share-by-confederation, message = FALSE}
+ggplot(fifa, aes(x = population_share, fill = confederation)) + 
+  geom_histogram(binwidth=1) + 
+  facet_grid(confederation ~ .)
+```
+
+## What is a Confederation?
+
+Easier to think of confederations as continents
+```{r, confederation-membership}
+ggplot(fifa_coords, aes(long, lat, group = group)) +
+  geom_polygon(aes( group=group, fill=confederation)) + 
+  ggtitle("FIFA Confederation memberdship by country") +
+  xlab("Longitude (deg)") + ylab("Latitude (deg)")
+```
+
+
+## TV Audience Share by Country (visualized)
+
+```{r}
+# Plotting TV Audience share by country
+ggplot(fifa_coords, aes(long, lat, group = group)) +
+  geom_polygon(aes( group=group, fill=tv_audience_share)) + 
+  ggtitle("TV Audience share (%) of world cup viewership by country") +
+  xlab("Longitude (deg)") + ylab("Latitude (deg)")
+```
+
+## GDP Weighted SHare by Country (visualized)
+
+```{r, gdp-weighted-share-choropleth}
+ggplot(fifa_coords, aes(long, lat, group = group)) +
+  geom_polygon(aes( group=group, fill=gdp_weighted_share)) + 
+  ggtitle("GDP-weighted share (%) of world cup viewership by country") +
+  xlab("Longitude (deg)") + ylab("Latitude (deg)")
+```
+
+
+## Inference
+T-test comparing the gdp-adjusted viewership for European vs non-European countries'. We'll be conducting this test with a significance level $\alpha = 0.05$. Our null and alternative hypotheses are listed below:
+
+- $H_0$: The mean GDP-weighted viewership share of the world cup in Europe is *not higher*  than that of other confederations
+- $H_a$: The mean GDP-weighter viewership share of the world cup is *higher* than that of other confederations
+
+
+```{r gdp-weighted-t-test}
+europe <- fifa %>% filter(european== TRUE)
+other_countries <- fifa %>% filter(european == FALSE)
+
+# Running one-tailed t-test using R built-in
+t.test(europe$gdp_weighted_share, other_countries$gdp_weighted_share, alternative="greater")
+```
+
+
+Since our p-value is less than $\alpha = 0.05$, we can reject the null hypothesis and claim that GDP-adjusted average world cup viewership in Europe is higher than that of non-European countries.
+
+## Inference (TV Audience)
+
+Let's also run an t-test on our `tv_audience_share` variable ($\alpha = 0.05$) between European and non-European countries:
+- $H_0$: The mean tv audience viewership share of the world cup in Europe is *not higher*  than that of other confederations
+- $H_a$: The mean tv audience viewership share of the world cup is *higher* than that of other confederations
+```{r tv-audience-t-test}
+# Running one-tailed t-test using R built-in method
+t.test(europe$tv_audience_share, other_countries$tv_audience_share, alternative="greater")
+```
+
+
+## Inference (ANOVA)
+Checking if there is a difference in TV Audience share between confederations
+```{r, anova-tv-audience}
+confederation_test <- aov(tv_audience_share ~ confederation, data = fifa)
+
+summary(confederation_test)
+```
+
+Since our p-value (0.0244) is less than $\alpha = 0.05$, we can reject the null hypothesis and assert that there *is* a statistically significant different in mean TV audience viewership between FIFA confederations. 
