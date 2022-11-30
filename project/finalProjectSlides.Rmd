@@ -57,7 +57,7 @@ fifa <- fifa %>%
 world_map <- map_data("world") %>%
               rename("country" = "region")
 
-# USA named differently in each dataset, replacing to standardize column values (same wqith UK)
+# USA named differently in each dataset, replacing to standardize column values (same with UK)
 world_map$country <- str_replace(world_map$country, "USA", "United States")
 world_map$country <- str_replace(world_map$country, "UK", "United Kingdom")
 
